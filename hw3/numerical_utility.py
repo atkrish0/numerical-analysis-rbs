@@ -63,16 +63,6 @@ def lagrange_interpolation(xy_points, x, n):
     return result
 
 def divided_differences(x, y):
-    """
-    Calculate the divided differences for Newton's interpolation.
-    
-    Parameters:
-    - x: List of x values (independent variable).
-    - y: List of y values (dependent variable).
-    
-    Returns:
-    - coefficients: List of coefficients for the Newton polynomial.
-    """
     n = len(x)
     coef = np.array(y, float)  # Initialize coefficients with y values
 
@@ -80,4 +70,44 @@ def divided_differences(x, y):
         for i in range(n - 1, j - 1, -1):
             coef[i] = (coef[i] - coef[i - 1]) / (x[i] - x[i - j])
     return coef
+
+
+def newton_interpolation(x_data, y_data, x):
+    coef = divided_differences(x_data, y_data)  # Get coefficients from divided differences
+    n = len(coef)
+    result = coef[-1]  # Start from the last coefficient
+
+    # Evaluate the polynomial using Horner's method
+    for i in range(n - 2, -1, -1):
+        result = result * (x - x_data[i]) + coef[i]
+    return result
+
+def hermite_interpolation(x_values, y_values, y_derivatives):
+    n = len(x_values)
+    z = np.zeros(2 * n)
+    Q = np.zeros((2 * n, 2 * n))
+
+    for i in range(n):
+        z[2 * i] = x_values[i]
+        z[2 * i + 1] = x_values[i]
+        Q[2 * i, 0] = y_values[i]
+        Q[2 * i + 1, 0] = y_values[i]
+        Q[2 * i + 1, 1] = y_derivatives[i]
+        if i != 0:
+            Q[2 * i, 1] = (Q[2 * i, 0] - Q[2 * i - 1, 0]) / (z[2 * i] - z[2 * i - 1])
+
+    for j in range(2, 2 * n):
+        for i in range(j, 2 * n):
+            Q[i, j] = (Q[i, j - 1] - Q[i - 1, j - 1]) / (z[i] - z[i - j])
+
+    return z, Q[0]
+
+def evaluate_hermite(z, coef, x):
+    n = len(coef)
+    result = coef[0]
+    product_term = 1
+    for i in range(1, n):
+        product_term *= (x - z[i - 1])
+        result += coef[i] * product_term
+    return result
 
