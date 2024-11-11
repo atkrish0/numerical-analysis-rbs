@@ -1,3 +1,5 @@
+import numpy as np
+
 def cubic_spline_interpolation(x, y):
     n = len(x) - 1
     h = np.diff(x)
@@ -28,3 +30,27 @@ def evaluate_spline(x_val, x, a, b, c, d):
         if x[i] <= x_val <= x[i + 1]:
             dx = x_val - x[i]
             return a[i] + b[i] * dx + c[i] * dx**2 + d[i] * dx**3
+        
+def lagrange_interpolation(xy_points, x, n):
+    sorted_points = sorted(xy_points,key=lambda x: x[0])
+    result = 0.0
+    for i in range(n + 1):
+        z = sorted_points[i][1]
+        for j in range(n + 1):
+            if j!= i:
+                z *= (x - sorted_points[j][0]) / (sorted_points[i][0] - sorted_points[j][0])
+        result += z
+    return result
+
+def newton_interpolation(xy_points, x, n):
+    sorted_points = sorted(xy_points,key=lambda x: x[0])
+    result = 0.0
+    for i in range(n + 1):
+        z = sorted_points[i][1]
+        for j in range(n):
+            z *= (x - sorted_points[j][0])
+        for k in range(i):
+            z /= (sorted_points[i][0] - sorted_points[k][0])
+        result += z
+    return result
+
