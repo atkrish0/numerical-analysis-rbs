@@ -1,5 +1,17 @@
 import numpy as np
 
+# Q5
+
+def base_points(n, a, b):
+    return [a + ((b - a) * i / n) for i in range(n + 1)]
+
+# Q6
+
+def chebyshev_points(n, a, b):
+    return [((a + b) / 2) + ((b - a) / 2)* np.cos((2 * i + 1) * np.pi / (2 * (n + 1))) for i in range(n + 1)]
+
+# Q8
+
 def cubic_spline_interpolation(x, y):
     n = len(x) - 1
     h = np.diff(x)
@@ -81,6 +93,8 @@ def newton_interpolation(x_data, y_data, x):
     for i in range(n - 2, -1, -1):
         result = result * (x - x_data[i]) + coef[i]
     return result
+
+# Q9
 
 def hermite_interpolation(x_values, y_values, y_derivatives):
     n = len(x_values)
