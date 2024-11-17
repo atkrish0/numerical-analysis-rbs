@@ -85,14 +85,17 @@ def divided_differences(x, y):
 
 
 def newton_interpolation(x_data, y_data, x):
-    coef = divided_differences(x_data, y_data)  # Get coefficients from divided differences
+    coef = divided_differences(x_data, y_data)  
     n = len(coef)
-    result = coef[-1]  # Start from the last coefficient
+    result = coef[-1]  
 
-    # Evaluate the polynomial using Horner's method
     for i in range(n - 2, -1, -1):
         result = result * (x - x_data[i]) + coef[i]
     return result
+
+def interpolating_polynomial(x_data, y_data, x):
+    coef = divided_differences(x_data, y_data)
+    return newton_interpolation(x_data, y_data, x)
 
 # Q9
 
