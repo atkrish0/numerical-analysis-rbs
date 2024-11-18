@@ -40,7 +40,7 @@ def evaluate_spline(x_val, x, a, b, c, d):
             return a[i] + b[i] * dx + c[i] * dx**2 + d[i] * dx**3
         
 
-def clamped_cubic_spline(x, y, fpa, fpb):
+def clamped_cubic_spline(x, y, der_a, der_b):
     n = len(x) - 1
     h = np.diff(x)
 
@@ -49,11 +49,11 @@ def clamped_cubic_spline(x, y, fpa, fpb):
 
     A[0, 0] = 2 * h[0]
     A[0, 1] = h[0]
-    B[0] = 3 * ((y[1] - y[0]) / h[0] - fpa)
+    B[0] = 3 * ((y[1] - y[0]) / h[0] - der_a)
 
     A[n, n - 1] = h[-1]
     A[n, n] = 2 * h[-1]
-    B[n] = 3 * (fpb - (y[n] - y[n - 1]) / h[-1])
+    B[n] = 3 * (der_b - (y[n] - y[n - 1]) / h[-1])
 
     a, b, c, d = cubic_spline_interpolation(x, y)
     
@@ -89,11 +89,6 @@ def newton_interpolation(x_data, y_data, x):
     for i in range(n - 2, -1, -1):
         result = result * (x - x_data[i]) + coef[i]
     return result
-
-
-def interpolating_polynomial(x_data, y_data, x):
-    coef = divided_differences(x_data, y_data)
-    return newton_interpolation(x_data, y_data, x)
 
 
 def hermite_interpolation(x_values, y_values, y_derivatives):
