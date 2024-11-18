@@ -1,16 +1,12 @@
 import numpy as np
 
-# Q5
-
 def base_points(n, a, b):
     return [a + ((b - a) * i / n) for i in range(n + 1)]
 
-# Q6
 
 def chebyshev_points(n, a, b):
     return [((a + b) / 2) + ((b - a) / 2)* np.cos((2 * i + 1) * np.pi / (2 * (n + 1))) for i in range(n + 1)]
 
-# Q8
 
 def cubic_spline_interpolation(x, y):
     n = len(x) - 1
@@ -63,6 +59,7 @@ def clamped_cubic_spline(x, y, fpa, fpb):
     
     return a, b, c, d
 
+
 def lagrange_interpolation(xy_points, x, n):
     sorted_points = sorted(xy_points,key=lambda x: x[0])
     result = 0.0
@@ -83,6 +80,7 @@ def divided_differences(x, y):
             coef[i] = (coef[i] - coef[i - 1]) / (x[i] - x[i - j])
     return coef
 
+
 def newton_interpolation(x_data, y_data, x):
     coef = divided_differences(x_data, y_data)  
     n = len(coef)
@@ -92,11 +90,11 @@ def newton_interpolation(x_data, y_data, x):
         result = result * (x - x_data[i]) + coef[i]
     return result
 
+
 def interpolating_polynomial(x_data, y_data, x):
     coef = divided_differences(x_data, y_data)
     return newton_interpolation(x_data, y_data, x)
 
-# Q9
 
 def hermite_interpolation(x_values, y_values, y_derivatives):
     n = len(x_values)
@@ -117,6 +115,7 @@ def hermite_interpolation(x_values, y_values, y_derivatives):
             Q[i, j] = (Q[i, j - 1] - Q[i - 1, j - 1]) / (z[i] - z[i - j])
 
     return z, Q[0]
+
 
 def evaluate_hermite(z, coef, x):
     n = len(coef)
