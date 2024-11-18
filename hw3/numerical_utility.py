@@ -91,17 +91,17 @@ def newton_interpolation(x_data, y_data, x):
     return result
 
 
-def hermite_interpolation(x_values, y_values, y_derivatives):
-    n = len(x_values)
+def hermite_interpolation(x_val, y_val, y_der):
+    n = len(x_val)
     z = np.zeros(2 * n)
     Q = np.zeros((2 * n, 2 * n))
 
     for i in range(n):
-        z[2 * i] = x_values[i]
-        z[2 * i + 1] = x_values[i]
-        Q[2 * i, 0] = y_values[i]
-        Q[2 * i + 1, 0] = y_values[i]
-        Q[2 * i + 1, 1] = y_derivatives[i]
+        z[2 * i] = x_val[i]
+        z[2 * i + 1] = x_val[i]
+        Q[2 * i, 0] = y_val[i]
+        Q[2 * i + 1, 0] = y_val[i]
+        Q[2 * i + 1, 1] = y_der[i]
         if i != 0:
             Q[2 * i, 1] = (Q[2 * i, 0] - Q[2 * i - 1, 0]) / (z[2 * i] - z[2 * i - 1])
 
@@ -115,9 +115,9 @@ def hermite_interpolation(x_values, y_values, y_derivatives):
 def evaluate_hermite(z, coef, x):
     n = len(coef)
     result = coef[0]
-    product_term = 1
+    prod = 1
     for i in range(1, n):
-        product_term *= (x - z[i - 1])
-        result += coef[i] * product_term
+        prod *= (x - z[i - 1])
+        result += coef[i] * prod
     return result
 
