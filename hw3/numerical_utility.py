@@ -76,13 +76,12 @@ def lagrange_interpolation(xy_points, x, n):
 
 def divided_differences(x, y):
     n = len(x)
-    coef = np.array(y, float)  # Initialize coefficients with y values
+    coef = np.array(y, float)
 
     for j in range(1, n):
         for i in range(n - 1, j - 1, -1):
             coef[i] = (coef[i] - coef[i - 1]) / (x[i] - x[i - j])
     return coef
-
 
 def newton_interpolation(x_data, y_data, x):
     coef = divided_differences(x_data, y_data)  
