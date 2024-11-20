@@ -12,7 +12,7 @@ def gen_uniform_rn(shape, seed=None):
     return np.random.uniform(0, 1, size=shape)
 
 def gen_sobol_rn(shape, seed=None):
-    sobol = qmc.Sobol(d = np.prpd(shape[:-1]), scarmble=True)
+    sobol = qmc.Sobol(d = np.prod(shape[:-1]), scarmble=True)
     sobol_samples = sobol.random(shape[-1]).reshape(shape)
     return sobol_samples * np.sqrt(1/252)
 
