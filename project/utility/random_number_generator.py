@@ -21,11 +21,6 @@ def gen_halton_rn(shape, seed=None):
     halton_samples = halton.random(shape[-1]).reshape(shape)
     return halton_samples * np.sqrt(1/252)
 
-def gen_hammersley_rn(shape, seed=None):
-    hammersley = qmc.Hammersley(d = np.prod(shape[:-1]), scramble=True)
-    hammersley_samples = hammersley.random(shape[-1]).reshape(shape)
-    return hammersley_samples * np.sqrt(1/252)
-
 def generate_random_numbers(method, shape, seed=None):
     if method == "normal":
         return gen_normal_rn(shape, seed)
@@ -35,8 +30,6 @@ def generate_random_numbers(method, shape, seed=None):
         return gen_sobol_rn(shape, seed)
     elif method == "halton":
         return gen_halton_rn(shape, seed)
-    elif method == "hammersley":
-        return gen_hammersley_rn(shape, seed)
     else:
         raise ValueError(f"Unsupported method: {method}. Choose from 'normal', 'uniform', 'sobol', 'halton', 'hammersley'.")
     
