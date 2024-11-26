@@ -9,9 +9,6 @@ def gen_uniform_rn(shape, dt=1/252):
     uniform_samples = np.random.uniform(0, 1, size=shape)
     return norm.ppf(uniform_samples) * np.sqrt(dt)
 
-def gen_rand_rn(shape, dt=1/252):
-    return np.random.rand(*shape) * np.sqrt(dt)
-
 def gen_sobol_rn(shape, dt=1/252):
     sobol = qmc.Sobol(d=shape[0], scramble=True)
     sobol_samples = sobol.random(n=shape[1]).T
@@ -33,8 +30,6 @@ def generate_random_numbers(method, shape, dt=1/252):
         return gen_normal_rn(shape, dt)
     elif method == "uniform":
         return gen_uniform_rn(shape, dt)
-    elif method == "rand":
-        return gen_rand_rn(shape, dt)
     elif method == "sobol":
         return gen_sobol_rn(shape, dt)
     elif method == "halton":
@@ -42,4 +37,4 @@ def generate_random_numbers(method, shape, dt=1/252):
     elif method == "lhs":
         return gen_lhs_rn(shape, dt)
     else:
-        raise ValueError(f"Unsupported method: {method}. Choose from 'normal', 'uniform', 'rand', 'sobol', 'halton', 'lhs'.")
+        raise ValueError(f"Unsupported method: {method}. Choose from 'normal', 'uniform', 'sobol', 'halton', 'lhs'.")
