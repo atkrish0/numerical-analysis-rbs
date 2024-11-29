@@ -36,6 +36,8 @@ def check_matrix2(matrix):
 
     return check_symmetric, check_singular, check_posdef
 
+# ===============================================================================================
+
 def lu_conditions():
     return None
 
@@ -83,4 +85,8 @@ def cholesky_conditions():
 
 def cholesky_factorization(A):
     return None
+
+# ===============================================================================================
+
+
 

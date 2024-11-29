@@ -12,8 +12,8 @@ def gen_uniform_rn(shape, dt=1/252):
 def gen_sobol_rn(shape, dt=1/252):
     sobol = qmc.Sobol(d=shape[0], scramble=True)
     sobol_samples = sobol.random(n=shape[1]).T
-    #return sobol_samples * np.sqrt(dt)
-    return (sobol_samples - 0.5) * np.sqrt(12 * dt)
+    return sobol_samples * np.sqrt(dt)
+    #return (sobol_samples - 0.5) * np.sqrt(12 * dt)
 
 def gen_halton_rn(shape, dt=1/252):
     halton = qmc.Halton(d=shape[0], scramble=True)
