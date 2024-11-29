@@ -9,6 +9,8 @@ def check_symmetric(matrix):
     return np.array_equal(matrix, matrix.T)
 
 def check_singular(matrix):
+    if not check_square(matrix):
+        return False
     det = np.linalg.det(matrix)
     return np.isclose(det, 0)
 
@@ -58,24 +60,27 @@ def check_matrix2(matrix):
 
 # ===============================================================================================
 
-def lu_conditions():
-    return None
+def lu_conditions(matrix):
+    if not check_square(matrix):
+        return False
+    if check_singular(matrix):
+        return False
+    return True
 
-def lu_factorization(A):
-    n = len(A)
-    L = np.eye(n)  # Initialize L as the identity matrix
-    U = A.copy()   # Start with U as a copy of A
+def lu_factorization(matrix):
+    n = len(matrix)
+    L = np.eye(n)
+    U = matrix.copy()
 
     for i in range(n):
-        # For each column, eliminate elements below the pivot
         for j in range(i + 1, n):
-            # Multiplier for elimination
             multiplier = U[j, i] / U[i, i]
-            L[j, i] = multiplier  # Store multiplier in L
-            # Update the row in U
+            L[j, i] = multiplier
             U[j, i:] = U[j, i:] - multiplier * U[i, i:]
 
     return L, U
+
+# ===============================================================================================
 
 def ldlt_conditions():
     return None
@@ -99,6 +104,8 @@ def ldlt_factorization(A):
             L[j, i] = (A[j, i] - sum(L[j, k] * L[i, k] * D[k, k] for k in range(i))) / D[i, i]
     
     return L, D
+
+# ===============================================================================================
 
 def cholesky_conditions():
     return None
