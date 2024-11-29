@@ -1,5 +1,25 @@
 import numpy as np
 
+def check_square(matrix):
+    return matrix.shape[0] == matrix.shape[1]
+
+def check_symmetric(matrix):
+    if not check_square(matrix):
+        return False
+    return np.array_equal(matrix, matrix.T)
+
+def check_singular(matrix):
+    det = np.linalg.det(matrix)
+    return np.isclose(det, 0)
+
+def check_posdef(matrix):
+    if not check_symmetric(matrix):
+        return False
+    eigenvalues = np.linalg.eigvals(matrix)
+    return all(eigenvalue > 0 for eigenvalue in eigenvalues)
+
+# ===============================================================================================
+
 def check_matrix(matrix):
     det = np.linalg.det(matrix)
     check_symmetric = np.array_equal(matrix, matrix.T)
