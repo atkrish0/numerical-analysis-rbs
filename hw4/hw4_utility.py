@@ -169,4 +169,3 @@ def pca(matrix):
     transformed_data = mean_centered @ eigvecs
 
     return eigvals, eigvecs, transformed_data
-
