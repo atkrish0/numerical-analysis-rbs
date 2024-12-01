@@ -1,4 +1,8 @@
 import numpy as np
+import pandas as pd
+import yfinance as yf
+
+# ===============================================================================================
 
 def check_square(matrix):
     return matrix.shape[0] == matrix.shape[1]
@@ -22,44 +26,6 @@ def check_posdef(matrix):
 
 # ===============================================================================================
 
-def check_matrix(matrix):
-    det = np.linalg.det(matrix)
-    check_symmetric = np.array_equal(matrix, matrix.T)
-    check_singular = np.isclose(det, 0)
-    try:
-        eigenvalues = np.linalg.eigvals(matrix)
-        check_posdef = np.all(eigenvalues > 0)
-    except np.linalg.LinAlgError:
-        check_posdef = False
-        
-    return check_symmetric, check_singular, check_posdef
-
-def check_matrix2(matrix):
-    if (matrix == matrix.T).all():
-        check_symmetric = True
-    else:
-        check_symmetric = False
-
-    det = np.linalg.det(matrix)
-    if det == 0:
-        check_singular = True
-    else:
-        check_singular = False
-
-    try:
-        eigenvalues = np.linalg.eigvals(matrix)
-        check_posdef = True
-        for eigenvalue in eigenvalues:
-            if eigenvalue <= 0:
-                check_posdef = False
-                break
-    except np.linalg.LinAlgError:  
-        check_posdef = False
-
-    return check_symmetric, check_singular, check_posdef
-
-# ===============================================================================================
-
 def lu_conditions(matrix):
     if not check_square(matrix):
         return False
@@ -74,46 +40,133 @@ def lu_factorization(matrix):
 
     for i in range(n):
         for j in range(i + 1, n):
-            multiplier = U[j, i] / U[i, i]
-            L[j, i] = multiplier
-            U[j, i:] = U[j, i:] - multiplier * U[i, i:]
+            k = U[j, i] / U[i, i]
+            L[j, i] = k
+            U[j, i:] = U[j, i:] - k * U[i, i:]
 
     return L, U
 
 # ===============================================================================================
 
-def ldlt_conditions():
-    return None
+def ldlt_conditions(matrix):
+    if not check_square(matrix):
+        return False
+    if not check_symmetric(matrix):
+        return False
+    if check_singular(matrix):
+        return False
+    return True
 
-def ldlt_factorization(A):
-    n = A.shape[0]
-    
-    # Check if the matrix is symmetric
-    if not np.allclose(A, A.T):
-        raise ValueError("Matrix is not symmetric. LDLᵀ factorization is not possible.")
-    
-    L = np.eye(n)  # Initialize L as the identity matrix
-    D = np.zeros((n, n))  # Initialize D as a zero matrix
-    
+def ldlt_factorization(matrix):
+    n = len(matrix)
+    L = np.eye(n)
+    D = np.zeros(n)
+
     for i in range(n):
-        # Compute D[i, i]
-        D[i, i] = A[i, i] - sum(L[i, k] ** 2 * D[k, k] for k in range(i))
-        
+        D[i] = matrix[i, i] - sum(L[i, k] ** 2 * D[k] for k in range(i))       
         for j in range(i + 1, n):
-            # Compute L[j, i]
-            L[j, i] = (A[j, i] - sum(L[j, k] * L[i, k] * D[k, k] for k in range(i))) / D[i, i]
+            L[j, i] = (matrix[j, i] - sum(L[j, k] * L[i, k] * D[k] for k in range(i))) / D[i]
     
-    return L, D
+    D_matrix = np.diag(D)
+    return L, D_matrix
 
 # ===============================================================================================
 
-def cholesky_conditions():
-    return None
+def cholesky_conditions(matrix):
+    if not check_square(matrix):
+        return False
+    if not check_symmetric(matrix):
+        return False
+    if not check_posdef(matrix):
+        return False
+    return True
 
-def cholesky_factorization(A):
-    return None
+def cholesky_factorization(matrix):
+    n = len(matrix)
+    L = np.zeros_like(matrix)
+    for i in range(n):
+        L[i, i] = np.sqrt(matrix[i, i] - sum(L[i, k] ** 2 for k in range(i)))
+        for j in range(i + 1, n):
+            L[j, i] = (matrix[j, i] - sum(L[j, k] * L[i, k] for k in range(i))) / L[i, i]
+    return L
 
 # ===============================================================================================
 
+# L * y = b
+def forward_sub(L, b):
+    n = len(b)
+    y = np.zeros_like(b, dtype=float)
+    for i in range(n):
+        y[i] = (b[i] - np.dot(L[i, :i], y[:i])) / L[i, i]
+    return y
 
+# U * x = y
+def backward_sub(U, y):
+    n = len(y)
+    x = np.zeros_like(y, dtype=float)
+    for i in range(n - 1, -1, -1):
+        x[i] = (y[i] - np.dot(U[i, i + 1:], x[i + 1:])) / U[i, i]
+    return x
+
+# A * x = b via LU factorization
+def solve_system(A, b):
+    if not lu_conditions(A):
+        raise ValueError("LU factorization not possible for the given matrix.")
+    L, U = lu_factorization(A)
+    y = forward_sub(L, b)
+    x = backward_sub(U, y)
+    return x
+
+# A * x = b via Gaussian elimination
+def gaussian_elimination(A, b):
+    A = A.copy()
+    b = b.copy()
+    n = len(b)
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            factor = A[j, i] / A[i, i]
+            A[j, i:] -= factor * A[i, i:]
+            b[j] -= factor * b[i]
+    x = np.zeros_like(b, dtype=float)
+    for i in range(n - 1, -1, -1):
+        x[i] = (b[i] - np.dot(A[i, i + 1:], x[i + 1:])) / A[i, i]
+    return x
+
+# ===============================================================================================
+
+def svd(matrix):
+    AtA = matrix.T @ matrix
+    AAt = matrix @ matrix.T
+
+    eigvals_AtA, V = np.linalg.eig(AtA)
+    singular_values = np.sqrt(eigvals_AtA)
+    eigvals_AAt, U_raw = np.linalg.eig(AAt)
+
+    sorted_indices = np.argsort(singular_values)[::-1]
+    singular_values = singular_values[sorted_indices]
+    V = V[:, sorted_indices]
+    U_raw = U_raw[:, sorted_indices]
+
+    S = np.diag(singular_values)
+    U = (matrix @ V) @ np.linalg.pinv(S)
+    Vt = V.T
+
+    return U, S, Vt
+
+# ===============================================================================================
+
+def pca(matrix):
+    n = matrix.shape[0]
+    mean_centered = matrix - np.mean(matrix, axis=0)
+    cov_mat = (1 / n) * mean_centered.T @ mean_centered
+    eigenvalues, eigenvectors = np.linalg.eig(cov_mat)
+
+    sorted_indices = np.argsort(eigenvalues)[::-1]
+    eigenvalues = eigenvalues[sorted_indices]
+    eigenvectors = eigenvectors[:, sorted_indices]
+
+    transformed_data = mean_centered @ eigenvectors
+
+    return eigenvalues, eigenvectors, transformed_data
 
