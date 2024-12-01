@@ -160,13 +160,13 @@ def pca(matrix):
     n = matrix.shape[0]
     mean_centered = matrix - np.mean(matrix, axis=0)
     cov_mat = (1 / n) * mean_centered.T @ mean_centered
-    eigenvalues, eigenvectors = np.linalg.eig(cov_mat)
+    eigvals, eigvecs = np.linalg.eig(cov_mat)
 
-    sorted_indices = np.argsort(eigenvalues)[::-1]
-    eigenvalues = eigenvalues[sorted_indices]
-    eigenvectors = eigenvectors[:, sorted_indices]
+    sorted_indices = np.argsort(eigvals)[::-1]
+    eigvals = eigvals[sorted_indices]
+    eigvecs = eigvecs[:, sorted_indices]
 
-    transformed_data = mean_centered @ eigenvectors
+    transformed_data = mean_centered @ eigvecs
 
-    return eigenvalues, eigenvectors, transformed_data
+    return eigvals, eigvecs, transformed_data
 
